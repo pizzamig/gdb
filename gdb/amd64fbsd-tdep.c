@@ -168,7 +168,7 @@ amd64fbsd_core_read_description (struct gdbarch *gdbarch,
       return tdesc_amd64_avx512;
     case X86_XSTATE_MPX_MASK:
       return tdesc_amd64_mpx;
-    case X386_XSTATE_AVX_MASK:
+    case X86_XSTATE_AVX_MASK:
       return tdesc_amd64_avx;
     default:
       return tdesc_amd64;
