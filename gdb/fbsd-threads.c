@@ -1317,7 +1317,7 @@ init_fbsd_thread_ops (void)
   fbsd_thread_ops.to_store_registers = fbsd_thread_store_registers;
   fbsd_thread_ops.to_mourn_inferior = fbsd_thread_mourn_inferior;
   fbsd_thread_ops.to_thread_alive = fbsd_thread_alive;
-  fbsd_thread_ops.to_find_new_threads = fbsd_thread_find_new_threads;
+  fbsd_thread_ops.to_update_thread_list = fbsd_thread_find_new_threads;
   fbsd_thread_ops.to_pid_to_str = fbsd_thread_pid_to_str;
   fbsd_thread_ops.to_stratum = thread_stratum;
   fbsd_thread_ops.to_get_thread_local_address = fbsd_thread_get_local_address;
