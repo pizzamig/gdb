@@ -31,15 +31,6 @@
 #include "fbsd-tdep.h"
 #include "solib-svr4.h"
 
-/* Supported register note sections.  */
-static struct core_regset_section amd64fbsd_regset_sections[] =
-{
-  { ".reg", 22 * 8, "general-purpose" },
-  { ".reg2", 512, "floating-point" },
-  { ".reg-xstate", X86_XSTATE_MAX_SIZE, "XSAVE extended state" },
-  { NULL, 0 }
-};
-
 /* Support for signal handlers.  */
 
 /* Assuming THIS_FRAME is for a BSD sigtramp routine, return the
@@ -175,6 +166,54 @@ amd64fbsd_core_read_description (struct gdbarch *gdbarch,
 }
 
 static void
+amd64fbsd_supply_xstateregset (const struct regset *regset,
+				 struct regcache *regcache, int regnum,
+				 const void *xstateregs, size_t len)
+{
+  amd64_supply_xsave (regcache, regnum, xstateregs);
+}
+
+/* Similar to amd64_collect_fpregset, but use XSAVE extended state.  */
+
+static void
+amd64fbsd_collect_xstateregset (const struct regset *regset,
+				  const struct regcache *regcache,
+				  int regnum, void *xstateregs, size_t len)
+{
+  amd64_collect_xsave (regcache, regnum, xstateregs, 1);
+}
+
+static const struct regset amd64fbsd_xstateregset =
+  {
+    NULL,
+    amd64fbsd_supply_xstateregset,
+    amd64fbsd_collect_xstateregset
+  };
+
+static void
+amd64fbsd_iterate_over_regset_sections (struct gdbarch *gdbarch,
+					  iterate_over_regset_sections_cb *cb,
+					  void *cb_data,
+					  const struct regcache *regcache)
+{
+  struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);
+
+  /* Supported register note sections.  */
+// static struct core_regset_section amd64fbsd_regset_sections[] =
+// {
+//   { ".reg", 22 * 8, "general-purpose" },
+//   { ".reg2", 512, "floating-point" },
+//   { ".reg-xstate", X86_XSTATE_MAX_SIZE, "XSAVE extended state" },
+//   { NULL, 0 }
+// };
+
+  cb (".reg", 22 * 8, &i386_gregset, "general-purpose", cb_data);
+  cb (".reg2", 512, &amd64_fpregset, "floating-point", cb_data);
+  cb (".reg-xstate",  regcache ? X86_XSTATE_MAX_SIZE : 0,
+      &amd64fbsd_xstateregset, "XSAVE extended state", cb_data);
+}
+
+static void
 amd64fbsd_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)
 {
   struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);
@@ -200,7 +239,11 @@ amd64fbsd_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)
   tdep->xsave_xcr0_offset = I386_FBSD_XSAVE_XCR0_OFFSET;
 
   /* Install supported register note sections.  */
-  set_gdbarch_core_regset_sections (gdbarch, amd64fbsd_regset_sections);
+//   set_gdbarch_core_regset_sections (gdbarch, amd64fbsd_regset_sections);
+  
+  /* Iterate over core file register note sections.  */
+  set_gdbarch_iterate_over_regset_sections
+    (gdbarch, amd64fbsd_iterate_over_regset_sections);
 
   set_gdbarch_core_read_description (gdbarch,
 				     amd64fbsd_core_read_description);
