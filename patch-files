@@ -1,0 +1,8 @@
+patch-gdb-amd64bsd-nat.c
+patch-gdb-amd64fbsd-nat.c
+patch-gdb-amd64fbsd-tdep.c
+patch-gdb-configure
+patch-gdb-gdb_wchar.h
+patch-gdb-i386fbsd-nat.c
+patch-gdb-python-python-config.py
+patch-unified
